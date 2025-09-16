@@ -1,5 +1,7 @@
 # ProPulse Frontend v1 🏋️‍♂️
 
+[ProPulseApp - v1.1](https://propulseapi.netlify.app)
+
 Marketplace fitness
 desarrollado en **React**,
 
@@ -16,7 +18,6 @@ desarrollado en **React**,
 
 ## ▶️ Instalación
 
-```bash
 npm install
 npm run dev
 
@@ -25,4 +26,3 @@ Py.Nicolini
 Jose-Santibanez
 Giordan-88
 
-```
