@@ -1,8 +1,7 @@
-// src/vistas/privado/Carrito.jsx
-import { useContext, useState } from "react";
-import productosDb from "../../api/db.json";
+import { useCart } from "../../contexts/CartContext";
+import { useEffect, useState } from "react";
+import { getProducto } from "../../api/proPulseApi";
 import ConfirmarCarrito from "../../componentes/ConfirmarCarrito";
-import CartContext from "../../contexts/CartContext";
 
 const fmtCLP = new Intl.NumberFormat("es-CL", {
   style: "currency",
@@ -11,63 +10,28 @@ const fmtCLP = new Intl.NumberFormat("es-CL", {
 });
 
 export default function Carrito() {
-  const ctx = useContext(CartContext) || null;
-  const usandoCtx = !!(ctx && Array.isArray(ctx.items) && typeof ctx.setItems === "function");
+  const { items, updateItem, removeItem, totals } = useCart();
+  const [productos, setProductos] = useState({});
 
-  // Productos → mapa por id normalizado
-  const productosArr = Array.isArray(productosDb?.productos) ? productosDb.productos : [];
-  const productos = productosArr.reduce((acc, p) => {
-    const idp = Number(p.id_producto ?? p.id);
-    acc[idp] = { ...p, id_producto: idp, id: idp };
-    return acc;
-  }, {});
+  useEffect(() => {
+    if (!items.length) return;
+    const faltantes = items.filter((it) => !(it.id_producto in productos));
+    if (!faltantes.length) return;
 
-  // Items fijos (mock) si no hay contexto
-  const itemsFijos = productosArr.slice(0, 2).map((p, i) => {
-    const idp = Number(p.id_producto ?? p.id ?? i + 1);
-    return {
-      id_item: i + 1,
-      id_producto: idp,
-      cantidad: i === 0 ? 2 : 1,
-      precio_fijo: Number(p.precio ?? 0),
-    };
-  });
-  const [itemsLocal, setItemsLocal] = useState(itemsFijos);
-
-  const items = usandoCtx ? ctx.items : itemsLocal;
-  const setItems = usandoCtx ? ctx.setItems : setItemsLocal;
-
-  const totals = items.reduce(
-    (acc, it) => {
-      acc.neto += (Number(it.cantidad) || 1) * (Number(it.precio_fijo) || 0);
-      return acc;
-    },
-    { neto: 0 }
-  );
-  totals.iva = Math.round(totals.neto * 0.19);
-  totals.total = totals.neto + totals.iva;
-
-  const incrementar = (id_item) => {
-    setItems((prev) =>
-      prev.map((it) =>
-        it.id_item === id_item ? { ...it, cantidad: Number(it.cantidad) + 1 } : it
-      )
-    );
-  };
-
-  const decrementar = (id_item) => {
-    setItems((prev) =>
-      prev.map((it) =>
-        it.id_item === id_item && it.cantidad > 1
-          ? { ...it, cantidad: Number(it.cantidad) - 1 }
-          : it
-      )
-    );
-  };
-
-  const removeItem = (id_item) => {
-    setItems((prev) => prev.filter((it) => it.id_item !== id_item));
-  };
+    (async () => {
+      const pares = await Promise.all(
+        faltantes.map(async (it) => {
+          try {
+            const { data } = await getProducto(it.id_producto);
+            return [it.id_producto, data ?? null];
+          } catch {
+            return [it.id_producto, null];
+          }
+        })
+      );
+      setProductos((prev) => Object.fromEntries([...Object.entries(prev), ...pares]));
+    })();
+  }, [items]);
 
   if (!items.length) {
     return (
@@ -80,38 +44,65 @@ export default function Carrito() {
   }
 
   return (
-    <div className="grid grid-cols-3 w-full bg-gray-100">
+    <div className="grid grid-cols-3 bg-black w-full">
       <div></div>
-      <div className="space-y-4">
+      <div>
         {items.map((it) => {
           const producto = productos[it.id_producto];
-          const titulo = producto?.titulo || "Producto sin nombre";
-          const precio = Number(it.precio_fijo) || 0;
+          const titulo = producto?.titulo || it.titulo || "Producto";
+          const precioBase = it.precio_fijo ?? it.precio_unitario ?? it.precio ?? 0;
+          const cantidad = Math.max(1, Number(it.cantidad) || 1);
+          const subtotal = precioBase * cantidad;
+
+          const incrementar = () =>
+            updateItem(it.id_producto, {
+              cantidad: cantidad + 1,
+              subtotal: precioBase * (cantidad + 1),
+            });
+
+          const decrementar = () =>
+            updateItem(it.id_producto, {
+              cantidad: Math.max(1, cantidad - 1),
+              subtotal: precioBase * Math.max(1, cantidad - 1),
+            });
 
           return (
-            <div key={it.id_item} className="card p-2 grid grid-cols-3 gap-2">
-              <div>
-                <h4>{titulo}</h4>
-                <p>ID: {it.id_producto}</p>
-                <p>{fmtCLP.format(precio)} 🛒</p>
-              </div>
-              <div>
-                <button onClick={() => decrementar(it.id_item)}>-</button>
-                <span className="px-2">{it.cantidad}</span>
-                <button onClick={() => incrementar(it.id_item)}>+</button>
-              </div>
-              <div>
-                <button
-                  className="btn btn-secondary"
-                  onClick={() => removeItem(it.id_item)}
-                >
-                  Eliminar 🗑️
-                </button>
+            <div key={it.id_producto} className="container w-full">
+              <div className="card grid grid-cols-3" style={{ maxWidth: "600px" }}>
+                <div>
+                  <h4>{titulo}</h4>
+                  <p>ID: {producto?.id_producto ?? it.id_producto}</p>
+                  <p>Precio unitario: {fmtCLP.format(precioBase)} 🛒</p>
+                  <p>Subtotal: {fmtCLP.format(subtotal)}</p>
+                </div>
+
+                <div>
+                  <button onClick={decrementar} disabled={cantidad <= 1}>-</button>
+                  <span className="mx-2">{cantidad}</span>
+                  <button onClick={incrementar}>+</button>
+                </div>
+
+                <div>
+                  <button
+                    className="btn btn-secondary"
+                    onClick={() => removeItem(it.id_producto)}
+                  >
+                    Eliminar 🗑️
+                  </button>
+                </div>
               </div>
             </div>
           );
         })}
-        <ConfirmarCarrito items={items} totals={totals} />
+
+        {/* Totales generales */}
+        <div className="card mt-4 p-4 text-center">
+          <p>Neto: {fmtCLP.format(totals.neto)}</p>
+          <p>IVA (19%): {fmtCLP.format(totals.iva)}</p>
+          <h3>Total: {fmtCLP.format(totals.total)}</h3>
+        <ConfirmarCarrito items={items}/>
+        </div>
+
       </div>
     </div>
   );

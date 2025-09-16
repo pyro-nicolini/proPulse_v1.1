@@ -23,32 +23,6 @@ export default function ConfirmBar({ items = [], totals = {}, errores = [], load
       )}
 
       <div className="card w-full">
-        <div>
-          <p>
-            Subtotal:{" "}
-            {new Intl.NumberFormat("es-CL", {
-              style: "currency",
-              currency: "CLP",
-              maximumFractionDigits: 0,
-            }).format(totals?.subtotal || 0)}
-          </p>
-          <p>
-            Impuesto 19%:{" "}
-            {new Intl.NumberFormat("es-CL", {
-              style: "currency",
-              currency: "CLP",
-              maximumFractionDigits: 0,
-            }).format(totals?.subtotal * 0.19 || 0)}
-          </p>
-          <p>
-            Total:{" "}
-            {new Intl.NumberFormat("es-CL", {
-              style: "currency",
-              currency: "CLP",
-              maximumFractionDigits: 0,
-            }).format(totals?.subtotal * 1.19 || 0)}
-          </p>
-        </div>
 
         <label>
           <input

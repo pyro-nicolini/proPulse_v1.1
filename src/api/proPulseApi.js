@@ -1,18 +1,26 @@
+import { productos } from "./db.json";
+export  function getProductos() {
+    return productos;
+}
+
+export  function getProducto(id) {
+    return productos.find((p) => p.id === id);
+}
+
+
 /*
+getToken()
+getCarrito()
 authRegister()
 authLogin()
 authMe()
 isAuth()
 setToken()
-getToken()
 
-getProductos()
-getProducto()
 crearProducto()
 actualizarProducto()
 eliminarProducto()
 
-getCarrito()
 agregarItemCarrito()
 actualizarItemCarrito()
 borrarItemCarrito()
