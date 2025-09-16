@@ -14,7 +14,6 @@ const Navbar = () => {
   return (
     <nav className="navbar">
       <div className="navbar container">
-
         <Link className="nav-link" to="/" onClick={closeMenu}>
           <img className="navbar-brand" src={logo} alt="ProPulse" />
         </Link>
@@ -31,7 +30,11 @@ const Navbar = () => {
         <div className="nav-links flex p-1">
           {isAdmin ? (
             <>
-              <Link className="nav-link" to="/admin-profile" onClick={closeMenu}>
+              <Link
+                className="nav-link"
+                to="/admin-profile"
+                onClick={closeMenu}
+              >
                 Admin
               </Link>
               <Link className="nav-link" to="/plantilla" onClick={closeMenu}>
@@ -60,17 +63,17 @@ const Navbar = () => {
 
           {user ? (
             <>
-            <div className="flex gap-1 items-center justify-center text-center">
-              <p className="pt-1 text-silver-light flex text-center justify-center items-center mobile-hidden">
-                Hi! {user.name}
-              </p>
-              <button
-                onClick={doLogout}
-                className="btn btn-secundary flex flex-col mobile-hidden"
+              <div className="flex gap-1 items-center justify-center text-center">
+                <p className="pt-1 text-silver-light flex text-center justify-center items-center mobile-hidden">
+                  Hi! {user.name}
+                </p>
+                <button
+                  onClick={doLogout}
+                  className="btn btn-secundary flex flex-col mobile-hidden"
                 >
-                Salir
-              </button>
-                </div>
+                  Salir
+                </button>
+              </div>
             </>
           ) : (
             <>
@@ -90,7 +93,12 @@ const Navbar = () => {
           <Link to="/profile-user" onClick={closeMenu}>
             Perfil
           </Link>
-
+          <Link className="nav-link" to="/admin-profile" onClick={closeMenu}>
+            Admin
+          </Link>
+          <Link className="nav-link" to="/plantilla" onClick={closeMenu}>
+            Plantilla
+          </Link>
           <Link to="/productos" onClick={closeMenu}>
             Productos
           </Link>
