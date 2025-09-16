@@ -35,7 +35,6 @@ function Pedidos() {
 
   useEffect(() => {
     setLoading(true);
-    // Solo gráficos: filtra por usuario si existe; si no, muestra todo
     const uid = user?.id;
     const lista = uid ? pedidosArr.filter(p => p.id_usuario === uid) : pedidosArr;
     setPedidos(lista);

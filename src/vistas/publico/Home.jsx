@@ -1,5 +1,4 @@
 import Hero from "../../componentes/Hero";
-import Footer from "../../componentes/Footer";
 import  {useFadeUp} from "../../customHooks/useFadeUp";
 
 

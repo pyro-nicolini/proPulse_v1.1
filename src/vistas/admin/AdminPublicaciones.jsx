@@ -6,24 +6,18 @@ export default function AdminPublicaciones() {
   const { user } = useAuth();
 
   const [productos] = useState(
-    (productoDb?.productos || [])
-      .slice(0, 6)
-      .map((p, i) => ({
-        id_producto: p.id_producto ?? p.id ?? i + 1,
-        titulo: p.titulo ?? `Producto ${i + 1}`,
-        tipo: p.tipo ?? "producto",
-        precio: p.precio ?? 19990,
-        stock: p.tipo === "servicio" ? null : (p.stock ?? 10),
-        resenas_count: p.resenas_count ?? 0,
-        likes_count: p.likes_count ?? 0,
-        activo: typeof p.activo === "boolean" ? p.activo : true,
-        url_imagen: p.url_imagen ?? `https://picsum.photos/seed/p-${i}/80/60`,
-      }))
+    (productoDb?.productos || []).slice(0, 6).map((p, i) => ({
+      id_producto: p.id_producto ?? p.id ?? i + 1,
+      titulo: p.titulo ?? `Producto ${i + 1}`,
+      tipo: p.tipo ?? "producto",
+      precio: p.precio ?? 19990,
+      stock: p.tipo === "servicio" ? null : (p.stock ?? 10),
+      resenas_count: p.resenas_count ?? 0,
+      likes_count: p.likes_count ?? 0,
+      activo: typeof p.activo === "boolean" ? p.activo : true,
+      url_imagen: p.url_imagen ?? `https://picsum.photos/seed/p-${i}/80/60`,
+    }))
   );
-
-  const [q] = useState("");
-  const loading = false;
-  const msg = "";
 
   if (!user) return <p className="container m-3">No has iniciado sesión.</p>;
   if (user.rol !== "admin") return <p className="container m-4">Solo para administradores.</p>;
@@ -37,21 +31,14 @@ export default function AdminPublicaciones() {
             className="input"
             style={{ flex: 1, minWidth: 0 }}
             placeholder="Buscar por título…"
-            value={q}
-            onChange={() => {}}
             disabled
           />
-          <button className="btn" onClick={() => {}} disabled>
-            {loading ? "Cargando…" : "Refrescar"}
-          </button>
+          <button className="btn" disabled>Refrescar</button>
         </div>
       </div>
 
       <div className="ap-stats bg-charcoal radius text-sm opacity-80 mb-2 p-2">
-        <span>Productos: <b>6</b></span>
-        <span>Likes totales: <b>42</b></span>
-        <span>Compras (unid.): <b>27</b></span>
-        {msg ? <span className="text-warning">{msg}</span> : null}
+        <span>Productos: <b>{productos.length}</b></span>
       </div>
 
       <div className="border rounded ap-table-wrap">
@@ -70,8 +57,7 @@ export default function AdminPublicaciones() {
           </thead>
           <tbody>
             {productos.map((p, idx) => {
-              const isServicio = p.tipo === "servicio" || p.stock === null;
-              // números falsos para que se vea
+              const isServicio = p.stock === null;
               const comprasFake = [5, 3, 9, 2, 6, 2][idx % 6];
               const likesFake = p.likes_count || [7, 6, 9, 5, 8, 7][idx % 6];
 
@@ -79,12 +65,7 @@ export default function AdminPublicaciones() {
                 <tr key={p.id_producto} className="border-t">
                   <td className="p-2">
                     <div className="ap-product">
-                      <img
-                        src={p.url_imagen}
-                        alt=""
-                        className="ap-thumb"
-                        loading="lazy"
-                      />
+                      <img src={p.url_imagen} alt="" className="ap-thumb" loading="lazy" />
                       <div>
                         <div className="font-medium">{p.titulo}</div>
                         <div className="opacity-60">#{p.id_producto}</div>
@@ -95,12 +76,8 @@ export default function AdminPublicaciones() {
                   <td className="p-2 text-right">
                     ${Number(p.precio).toLocaleString("es-CL")}
                   </td>
-                  <td className="p-2 text-center">
-                    {isServicio ? "∞" : p.stock ?? 0}
-                  </td>
-                  <td className="p-2 text-center ap-col-hide-sm">
-                    {Number(p.resenas_count ?? 0)}
-                  </td>
+                  <td className="p-2 text-center">{isServicio ? "∞" : p.stock}</td>
+                  <td className="p-2 text-center ap-col-hide-sm">{p.resenas_count}</td>
                   <td className="p-2 text-center">{likesFake}</td>
                   <td className="p-2 text-center">{comprasFake}</td>
                   <td className="p-2 text-center ap-col-hide-sm">

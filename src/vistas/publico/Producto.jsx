@@ -1,7 +1,7 @@
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { useFadeUp } from "../../customHooks/useFadeUp";
-import AddToCartButton from "../../componentes/AgregarAlCarrito";
+import AgregarAlCarrito from "../../componentes/AgregarAlCarrito";
 import Resena from "../../componentes/Resena";
 import productosDb from "../../api/db.json";
 
@@ -15,7 +15,6 @@ export default function Producto() {
       (productosDb?.productos || []).map((p, i) => ({
         ...p,
         id_producto: Number(p.id_producto ?? p.id ?? i + 1),
-        tipo: p.tipo ?? "producto",
         titulo: p.titulo ?? `Producto ${i + 1}`,
         precio: Number(p.precio ?? 0),
         url_imagen: p.url_imagen ?? `https://picsum.photos/seed/prod-${i}/800/600`,
@@ -24,8 +23,8 @@ export default function Producto() {
     []
   );
 
-  const producto =
-    productos.find((p) => p.id_producto === pid && p.tipo === "producto") || null;
+  // ahora busca solo por id
+  const producto = productos.find((p) => p.id_producto === pid) || null;
 
   const fmtCLP = new Intl.NumberFormat("es-CL", {
     style: "currency",
@@ -57,7 +56,7 @@ export default function Producto() {
           <h4 className="flex justify-end">{fmtCLP.format(producto.precio)}</h4>
           <p>{producto.descripcion}</p>
           <div>
-            <AddToCartButton product={producto} />
+            <AgregarAlCarrito product={producto} />
           </div>
         </div>
       </div>

@@ -104,19 +104,6 @@ export default function ResenaForm({
       >
         {busy ? "Enviando…" : "Enviar reseña"}
       </button>
-
-      <div className="mt-4">
-        <h3 className="text-sm font-semibold">Reseñas:</h3>
-        <ul className="list-disc pl-5">
-          {resenas
-            .filter((r) => r.id_producto === productId)
-            .map((r) => (
-              <li key={r.id_resena}>
-                ⭐ {r.calificacion} — {r.comentario}
-              </li>
-            ))}
-        </ul>
-      </div>
     </form>
   );
 }
